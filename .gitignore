@@ -1,0 +1,22 @@
+# Node / Frontend
+node_modules/
+.cache/
+build/
+
+# React
+dist/
+
+# gh-pages
+.gh-pages/
+
+# Env
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# .NET
+bin/
+obj/
+node_modules
