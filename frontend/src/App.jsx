@@ -1,15 +1,13 @@
-import Login from "./components/Login";
-import ExpenseForm from "./components/ExpenseForm";
+import { Routes, Route } from "react-router-dom";
+import Dashboard from "./components/Dashboard";
 import ExpenseList from "./components/ExpenseList";
 
-function App() {
+export default function App() {
     return (
-        <>
-            <Login />
-            <ExpenseForm />
-            <ExpenseList />
-        </>
+        <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/expenses" element={<ExpenseList />} />
+        </Routes>
     );
 }
 
-export default App;
