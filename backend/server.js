@@ -8,7 +8,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ✅ Root route (Cloud Run + health check)
+app.get("/", (req, res) => {
+    res.json({
+        service: "expense-api",
+        status: "running",
+        timestamp: new Date().toISOString()
+    });
+});
+
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
