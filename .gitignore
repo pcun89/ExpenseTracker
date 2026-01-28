@@ -1,0 +1,15 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Build outputs
+build/
+dist/
+
+# gh-pages cache (THIS IS THE BUG)
+.cache/
+**/.cache/
+
+# Env
+.env
+
