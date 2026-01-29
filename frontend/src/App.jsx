@@ -1,13 +1,25 @@
-import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
+import { Container, Typography } from "@mui/material";
 import Dashboard from "./components/Dashboard";
-import ExpenseList from "./components/ExpenseList";
+import AddExpenseForm from "./components/AddExpenseForm";
 
 export default function App() {
+    const [expenses, setExpenses] = useState([]);
+
+    const addExpense = (expense) => {
+        setExpenses(prev => [...prev, expense]);
+    };
+
     return (
-        <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/expenses" element={<ExpenseList />} />
-        </Routes>
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" gutterBottom>
+                Expense Tracker
+            </Typography>
+
+            <AddExpenseForm onAdd={addExpense} />
+            <Dashboard expenses={expenses} />
+        </Container>
     );
 }
+
 
