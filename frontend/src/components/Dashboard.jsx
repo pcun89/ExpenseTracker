@@ -12,7 +12,9 @@ export default function Dashboard({ expenses = [] }) {
             <Grid item xs={12} md={4}>
                 <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
                     <CardContent>
-                        <Typography variant="h6">Total Spending</Typography>
+                        <Typography variant="h6">
+                            Total Spending
+                        </Typography>
                         <Typography variant="h4">
                             ${total.toFixed(2)}
                         </Typography>
@@ -26,4 +28,5 @@ export default function Dashboard({ expenses = [] }) {
         </Grid>
     );
 }
+
 
