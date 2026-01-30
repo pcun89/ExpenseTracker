@@ -4,16 +4,29 @@ import {
     ListItem,
     TextField,
     IconButton,
-    Paper
+    Paper,
+    Button,
+    Stack
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 
+const PAGE_SIZE = 10;
+
 export default function ExpenseList({ expenses, onUpdate, onDelete }) {
+    const [page, setPage] = useState(0);
+
+    const pagedExpenses = expenses.slice(
+        page * PAGE_SIZE,
+        (page + 1) * PAGE_SIZE
+    );
+
+    const maxPage = Math.ceil(expenses.length / PAGE_SIZE) - 1;
+
     return (
         <Paper sx={{ mt: 4, p: 2 }}>
             <List>
-                {expenses.map(expense => (
+                {pagedExpenses.map(expense => (
                     <ExpenseItem
                         key={expense.id}
                         expense={expense}
@@ -22,6 +35,22 @@ export default function ExpenseList({ expenses, onUpdate, onDelete }) {
                     />
                 ))}
             </List>
+
+            {/* Pagination controls */}
+            <Stack direction="row" spacing={2} justifyContent="center" mt={2}>
+                <Button
+                    disabled={page === 0}
+                    onClick={() => setPage(p => p - 1)}
+                >
+                    Previous
+                </Button>
+                <Button
+                    disabled={page >= maxPage}
+                    onClick={() => setPage(p => p + 1)}
+                >
+                    Next
+                </Button>
+            </Stack>
         </Paper>
     );
 }
@@ -69,6 +98,4 @@ function ExpenseItem({ expense, onUpdate, onDelete }) {
         </ListItem>
     );
 }
-
-
 

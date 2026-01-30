@@ -1,52 +1,29 @@
 import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from "recharts";
 import { Card, CardContent, Typography } from "@mui/material";
+import { groupByCategory } from "../utils/groupByCategory";
 
-const COLORS = [
-    "#1976d2",
-    "#9c27b0",
-    "#2e7d32",
-    "#ed6c02",
-    "#d32f2f",
-    "#0288d1"
-];
+const COLORS = ["#1976d2", "#9c27b0", "#ff9800", "#4caf50", "#f44336"];
 
 export default function ExpenseChart({ expenses }) {
-    const grouped = new Map();
-
-    expenses.forEach(({ category, amount }) => {
-        grouped.set(category, (grouped.get(category) || 0) + amount);
-    });
-
-    const data = Array.from(grouped.entries()).map(([name, value]) => ({
-        name,
-        value
-    }));
-
-    if (data.length === 0) {
-        return (
-            <Typography sx={{ mt: 2 }}>
-                No expenses to display
-            </Typography>
-        );
-    }
+    const data = groupByCategory(expenses);
 
     return (
         <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
             <CardContent>
                 <Typography variant="h6">Spending by Category</Typography>
-                <ResponsiveContainer width="100%" height={300}>
+
+                <ResponsiveContainer width="100%" height={380}>
                     <PieChart>
                         <Pie
                             data={data}
                             dataKey="value"
                             nameKey="name"
-                            label
+                            label={({ name, percent }) =>
+                                `${name} ${(percent * 100).toFixed(0)}%`
+                            }
                         >
                             {data.map((_, i) => (
-                                <Cell
-                                    key={i}
-                                    fill={COLORS[i % COLORS.length]}
-                                />
+                                <Cell key={i} fill={COLORS[i % COLORS.length]} />
                             ))}
                         </Pie>
                         <Tooltip />
@@ -56,6 +33,7 @@ export default function ExpenseChart({ expenses }) {
         </Card>
     );
 }
+
 
 
 

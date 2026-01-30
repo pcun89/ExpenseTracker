@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ExpenseApi.Data;
+using ExpenseApi.Models;
 
 namespace ExpenseApi.Controllers
 {
@@ -6,28 +9,85 @@ namespace ExpenseApi.Controllers
     [Route("api/[controller]")]
     public class ExpensesController : ControllerBase
     {
-        private static readonly List<Expense> Expenses = new();
+        private readonly ExpenseDbContext _context;
 
+        public ExpensesController(ExpenseDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET /api/expenses?limit=10&offset=0&category=Food
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll(
+            int limit = 10,
+            int offset = 0,
+            string? category = null
+        )
         {
-            return Ok(Expenses);
+            var query = _context.Expenses.AsQueryable();
+
+            if (!string.IsNullOrEmpty(category))
+            {
+                query = query.Where(e => e.Category == category);
+            }
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(e => e.Date)
+                .Skip(offset)
+                .Take(limit)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                total,
+                items
+            });
         }
 
+        // POST /api/expenses
         [HttpPost]
-        public IActionResult Create([FromBody] Expense expense)
+        public async Task<IActionResult> Create([FromBody] Expense expense)
         {
-            expense.Id = Expenses.Count + 1;
-            Expenses.Add(expense);
-            return CreatedAtAction(nameof(GetAll), expense);
-        }
-    }
+            if (expense.Date == default)
+                expense.Date = DateTime.UtcNow;
 
-    public class Expense
-    {
-        public int Id { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
+            _context.Expenses.Add(expense);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetAll), new { id = expense.Id }, expense);
+        }
+
+        // PUT /api/expenses/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Expense updated)
+        {
+            if (id != updated.Id)
+                return BadRequest();
+
+            var exists = await _context.Expenses.AnyAsync(e => e.Id == id);
+            if (!exists)
+                return NotFound();
+
+            _context.Entry(updated).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE /api/expenses/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var expense = await _context.Expenses.FindAsync(id);
+            if (expense == null)
+                return NotFound();
+
+            _context.Expenses.Remove(expense);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

@@ -1,10 +1,25 @@
-import { api } from "../api";
+import { useContext, useState } from "react";
+import { TextField, Button, Card, CardContent } from "@mui/material";
+import { AuthContext } from "../AuthContext";
 
 export default function Login() {
-    async function login() {
-        const res = await api.post("/auth/login", { email: "user@test.com" });
-        localStorage.setItem("token", res.data.token);
+    const { setToken } = useContext(AuthContext);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    function handleLogin() {
+        // placeholder for API call
+        setToken("fake-jwt-token");
     }
 
-    return <button onClick={login}>Login</button>;
+    return (
+        <Card>
+            <CardContent>
+                <TextField label="Email" fullWidth sx={{ mb: 2 }} />
+                <TextField label="Password" type="password" fullWidth sx={{ mb: 2 }} />
+                <Button variant="contained" onClick={handleLogin}>Login</Button>
+            </CardContent>
+        </Card>
+    );
 }
+
