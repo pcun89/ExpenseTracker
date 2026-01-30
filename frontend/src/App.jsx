@@ -1,27 +1,24 @@
-import { useEffect, useState } from "react";
-import { fetchExpenses, addExpense } from "./api";
+import { useState } from "react";
+import { Container } from "@mui/material";
+
+import ExpenseForm from "./components/ExpenseForm";
+import Dashboard from "./components/Dashboard";
 
 export default function App() {
     const [expenses, setExpenses] = useState([]);
 
-    useEffect(() => {
-        fetchExpenses()
-            .then(setExpenses)
-            .catch(console.error);
-    }, []);
-
-    const handleAddExpense = async (expense) => {
-        const saved = await addExpense(expense);
-        setExpenses([...expenses, saved]);
-    };
+    function handleAddExpense(expense) {
+        setExpenses((prev) => [...prev, expense]);
+    }
 
     return (
-        <>
+        <Container sx={{ mt: 4 }}>
             <ExpenseForm onAdd={handleAddExpense} />
             <Dashboard expenses={expenses} />
-        </>
+        </Container>
     );
 }
+
 
 
 

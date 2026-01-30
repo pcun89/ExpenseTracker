@@ -1,10 +1,4 @@
-import {
-    PieChart,
-    Pie,
-    Tooltip,
-    ResponsiveContainer,
-    Cell
-} from "recharts";
+import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from "recharts";
 import { Card, CardContent, Typography } from "@mui/material";
 
 const COLORS = [
@@ -13,43 +7,45 @@ const COLORS = [
     "#2e7d32",
     "#ed6c02",
     "#d32f2f",
-    "#0288d1",
-    "#6a1b9a"
+    "#0288d1"
 ];
 
 export default function ExpenseChart({ expenses }) {
-    if (!expenses.length) {
+    const grouped = new Map();
+
+    expenses.forEach(({ category, amount }) => {
+        grouped.set(category, (grouped.get(category) || 0) + amount);
+    });
+
+    const data = Array.from(grouped.entries()).map(([name, value]) => ({
+        name,
+        value
+    }));
+
+    if (data.length === 0) {
         return (
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-                <CardContent>
-                    <Typography variant="h6">
-                        Spending Breakdown
-                    </Typography>
-                    <Typography>No expenses to display</Typography>
-                </CardContent>
-            </Card>
+            <Typography sx={{ mt: 2 }}>
+                No expenses to display
+            </Typography>
         );
     }
 
     return (
         <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
             <CardContent>
-                <Typography variant="h6">
-                    Spending Breakdown
-                </Typography>
-
+                <Typography variant="h6">Spending by Category</Typography>
                 <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                         <Pie
-                            data={expenses}
-                            dataKey="amount"
-                            nameKey="title"
-                            outerRadius={100}
+                            data={data}
+                            dataKey="value"
+                            nameKey="name"
+                            label
                         >
-                            {expenses.map((_, index) => (
+                            {data.map((_, i) => (
                                 <Cell
-                                    key={index}
-                                    fill={COLORS[index % COLORS.length]}
+                                    key={i}
+                                    fill={COLORS[i % COLORS.length]}
                                 />
                             ))}
                         </Pie>
@@ -60,5 +56,6 @@ export default function ExpenseChart({ expenses }) {
         </Card>
     );
 }
+
 
 
