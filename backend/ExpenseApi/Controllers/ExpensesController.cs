@@ -9,11 +9,11 @@ namespace ExpenseApi.Controllers
     [Route("api/[controller]")]
     public class ExpensesController : ControllerBase
     {
-        private readonly ExpenseDbContext _context;
+        private readonly ExpenseDbContext _db;
 
-        public ExpensesController(ExpenseDbContext context)
+        public ExpensesController(ExpenseDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
         // GET /api/expenses?limit=10&offset=0&category=Food
@@ -24,7 +24,7 @@ namespace ExpenseApi.Controllers
             string? category = null
         )
         {
-            var query = _context.Expenses.AsQueryable();
+            var query = _db.Expenses.AsQueryable();
 
             if (!string.IsNullOrEmpty(category))
             {
@@ -50,11 +50,12 @@ namespace ExpenseApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Expense expense)
         {
-            if (expense.Date == default)
-                expense.Date = DateTime.UtcNow;
+            expense.Date = expense.Date == default
+                ? DateTime.UtcNow
+                : expense.Date;
 
-            _context.Expenses.Add(expense);
-            await _context.SaveChangesAsync();
+            _db.Expenses.Add(expense);
+            await _db.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetAll), new { id = expense.Id }, expense);
         }
@@ -63,16 +64,16 @@ namespace ExpenseApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Expense updated)
         {
-            if (id != updated.Id)
-                return BadRequest();
-
-            var exists = await _context.Expenses.AnyAsync(e => e.Id == id);
-            if (!exists)
+            var existing = await _db.Expenses.FindAsync(id);
+            if (existing == null)
                 return NotFound();
 
-            _context.Entry(updated).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            existing.Title = updated.Title;
+            existing.Amount = updated.Amount;
+            existing.Category = updated.Category;
+            existing.Date = updated.Date;
 
+            await _db.SaveChangesAsync();
             return NoContent();
         }
 
@@ -80,14 +81,15 @@ namespace ExpenseApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var expense = await _context.Expenses.FindAsync(id);
+            var expense = await _db.Expenses.FindAsync(id);
             if (expense == null)
                 return NotFound();
 
-            _context.Expenses.Remove(expense);
-            await _context.SaveChangesAsync();
+            _db.Expenses.Remove(expense);
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }
     }
 }
+
