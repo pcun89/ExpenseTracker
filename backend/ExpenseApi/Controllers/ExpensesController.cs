@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExpenseApi.Data;
 using ExpenseApi.Models;
+using ExpenseApi.DTOs;
 
 namespace ExpenseApi.Controllers
 {
@@ -18,7 +19,7 @@ namespace ExpenseApi.Controllers
 
         // GET /api/expenses?limit=10&offset=0&category=Food
         [HttpGet]
-        public async Task<IActionResult> GetAll(
+        public async Task<ActionResult> GetAll(
             int limit = 10,
             int offset = 0,
             string? category = null
@@ -37,6 +38,14 @@ namespace ExpenseApi.Controllers
                 .OrderByDescending(e => e.Date)
                 .Skip(offset)
                 .Take(limit)
+                .Select(e => new ExpenseDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Amount = e.Amount,
+                    Category = e.Category,
+                    Date = e.Date
+                })
                 .ToListAsync();
 
             return Ok(new
@@ -50,6 +59,9 @@ namespace ExpenseApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Expense expense)
         {
+            if (expense == null)
+                return BadRequest();
+
             expense.Date = expense.Date == default
                 ? DateTime.UtcNow
                 : expense.Date;
@@ -92,4 +104,5 @@ namespace ExpenseApi.Controllers
         }
     }
 }
+
 

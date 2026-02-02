@@ -15,13 +15,12 @@ namespace ExpenseApi.Controllers
             _db = db;
         }
 
+        // GET /api/analytics/monthly
         [HttpGet("monthly")]
         public async Task<IActionResult> GetMonthlyAnalytics()
         {
-            // 1️⃣ Load expenses into memory
             var expenses = await _db.Expenses.ToListAsync();
 
-            // 2️⃣ Group + aggregate in C#
             var result = expenses
                 .GroupBy(e => new
                 {
@@ -42,11 +41,15 @@ namespace ExpenseApi.Controllers
 
             return Ok(result);
         }
+
+        // GET /api/analytics/categories
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategoryTotals()
         {
+            // 1️⃣ Load into memory
             var expenses = await _db.Expenses.ToListAsync();
 
+            // 2️⃣ Group + sum in C#
             var result = expenses
                 .GroupBy(e => e.Category)
                 .Select(g => new
@@ -59,7 +62,7 @@ namespace ExpenseApi.Controllers
 
             return Ok(result);
         }
-
     }
 }
+
 

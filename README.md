@@ -1,48 +1,37 @@
-# Expense Tracker – Full Stack Cloud Application
+# Expense Tracker (Full-Stack)
 
-## Overview
-A production-ready full-stack expense tracking application that allows users to securely manage expenses and visualize spending trends. The application is deployed using cloud-native infrastructure and follows modern full-stack best practices.
+A full-stack expense tracking application built with
+ASP.NET Core, Entity Framework Core, SQLite, and React.
 
-## Live Demo
-- Frontend (GitHub Pages): https://pcun89.github.io/expense-tracker
-- Backend API (Google Cloud Run): https://expense-api-266155717887.us-central1.run.app
+## Features
+- CRUD expense management
+- Analytics dashboard (category & monthly charts)
+- Pagination & filtering
+- Clean architecture using DTOs
+- RESTful API design
 
 ## Tech Stack
-Frontend:
-- React
-- Material UI
-- Recharts
-- Axios
-
 Backend:
-- Node.js
-- Express
-- JWT Authentication
+- ASP.NET Core Web API
+- Entity Framework Core
+- SQLite
 
-Database:
-- PostgreSQL
-
-Cloud & DevOps:
-- Google Cloud Run
-- Docker
-- GitHub Pages
+Frontend:
+- React (Vite)
+- Recharts
+- Fetch API
 
 ## Architecture
-React (GitHub Pages)
-→ HTTPS
-→ Google Cloud Run (REST API)
-→ PostgreSQL
+- Controllers
+- DTOs (decoupled API layer)
+- EF Core DbContext
+- REST endpoints
 
-## Key Features
-- Secure JWT-based authentication
-- Expense CRUD operations
-- Real-time spending visualization
-- Cloud-native backend deployment
-- Health monitoring endpoint
+## Example Endpoints
+GET /api/expenses?page=1&pageSize=10  
+GET /api/analytics/categories  
 
-## What This Project Demonstrates
-- Full-stack application design
-- REST API development
-- Cloud deployment with Google Cloud Run
-- Secure authentication flows
-- Production-ready UI/UX patterns
+## Run Locally
+Backend:
+```bash
+dotnet run
