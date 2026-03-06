@@ -4,7 +4,7 @@ import axios from "axios";
  * Axios instance
  */
 export const api = axios.create({
-    baseURL: "https://expense-api-266155717887.us-central1.run.app/api",
+    baseURL: "http://localhost:5292/api"
 });
 
 /**
