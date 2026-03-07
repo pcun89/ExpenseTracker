@@ -4,7 +4,7 @@ import axios from "axios";
  * Axios instance
  */
 export const api = axios.create({
-    baseURL: "http://localhost:5292/api"
+    baseURL: "http://localhost:5042/api"
 });
 
 /**
