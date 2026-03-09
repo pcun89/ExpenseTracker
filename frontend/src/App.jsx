@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { fetchExpenses, addExpense, updateExpense } from "./api";
 import ExpenseForm from "./components/ExpenseForm";
 import CategoryChart from "./components/CategoryChart";
+import ExpenseTable from "./components/ExpenseTable";
+
 
 /**
  * Main application component
