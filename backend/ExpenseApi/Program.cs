@@ -46,8 +46,6 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
 // --------------------
@@ -61,5 +59,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
 
