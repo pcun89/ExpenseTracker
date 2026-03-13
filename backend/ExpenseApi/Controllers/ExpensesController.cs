@@ -1,108 +1,76 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ExpenseApi.Data;
-using ExpenseApi.Models;
-using ExpenseApi.DTOs;
+using Microsoft.EntityFrameworkCore;
 
-namespace ExpenseApi.Controllers
+var builder = WebApplication.CreateBuilder(args);
+
+// --------------------
+// Add services
+// --------------------
+
+builder.Services.AddControllers();
+
+/*
+ SQLite must be stored in /tmp for Cloud Run
+ because the container filesystem is read-only
+*/
+builder.Services.AddDbContext<ExpenseDbContext>(options =>
+    options.UseSqlite("Data Source=/tmp/expenses.db")
+);
+
+builder.Services.AddCors(options =>
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ExpensesController : ControllerBase
+    options.AddDefaultPolicy(policy =>
     {
-        private readonly ExpenseDbContext _db;
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
-        public ExpensesController(ExpenseDbContext db)
-        {
-            _db = db;
-        }
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-        // GET /api/expenses?limit=10&offset=0&category=Food
-        [HttpGet]
-        public async Task<ActionResult> GetAll(
-            int limit = 10,
-            int offset = 0,
-            string? category = null
-        )
-        {
-            var query = _db.Expenses.AsQueryable();
+// --------------------
+// Build app
+// --------------------
 
-            if (!string.IsNullOrEmpty(category))
-            {
-                query = query.Where(e => e.Category == category);
-            }
+var app = builder.Build();
 
-            var total = await query.CountAsync();
+// --------------------
+// Middleware
+// --------------------
 
-            var items = await query
-                .OrderByDescending(e => e.Date)
-                .Skip(offset)
-                .Take(limit)
-                .Select(e => new ExpenseDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Amount = e.Amount,
-                    Category = e.Category,
-                    Date = e.Date
-                })
-                .ToListAsync();
-
-            return Ok(new
-            {
-                total,
-                items
-            });
-        }
-
-        // POST /api/expenses
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Expense expense)
-        {
-            if (expense == null)
-                return BadRequest();
-
-            expense.Date = expense.Date == default
-                ? DateTime.UtcNow
-                : expense.Date;
-
-            _db.Expenses.Add(expense);
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetAll), new { id = expense.Id }, expense);
-        }
-
-        // PUT /api/expenses/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Expense updated)
-        {
-            var existing = await _db.Expenses.FindAsync(id);
-            if (existing == null)
-                return NotFound();
-
-            existing.Title = updated.Title;
-            existing.Amount = updated.Amount;
-            existing.Category = updated.Category;
-            existing.Date = updated.Date;
-
-            await _db.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE /api/expenses/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var expense = await _db.Expenses.FindAsync(id);
-            if (expense == null)
-                return NotFound();
-
-            _db.Expenses.Remove(expense);
-            await _db.SaveChangesAsync();
-
-            return NoContent();
-        }
-    }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseCors();
+
+app.MapControllers();
+
+/*
+ Health endpoint for Cloud Run
+*/
+app.MapGet("/", () => new
+{
+    service = "expense-api",
+    status = "running",
+    timestamp = DateTime.UtcNow
+});
+
+// --------------------
+// Auto-create database
+// --------------------
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
+    db.Database.Migrate();
+}
+
+app.Run();
+
 
 
