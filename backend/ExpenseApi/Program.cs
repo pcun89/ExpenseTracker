@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ExpenseDbContext>(options =>
-    options.UseSqlite("Data Source=expenses.db")
+    options.UseSqlite("Data Source=/tmp/expenses.db")
 );
 
 builder.Services.AddCors(options =>
@@ -46,6 +46,14 @@ app.UseCors();
 
 app.MapControllers();
 
+// health endpoint
+app.MapGet("/", () => new
+{
+    service = "expense-api",
+    status = "running",
+    timestamp = DateTime.UtcNow
+});
+
 // --------------------
 // Auto-create database
 // --------------------
@@ -57,6 +65,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
 
 
